@@ -9,8 +9,12 @@ public class Carro extends Repartidor {
 
 
     @Override
-    public double calcularCosto(double km) {
-        return 5000 + (km * 1200);
+    public double calcularCosto(double km, boolean lluvia) {
+        double costo= 5000 + (km * 1200);
+        if(lluvia){
+            return costo *1.20;
+        }
+        return costo;
     }
 
     @Override
@@ -19,7 +23,7 @@ public class Carro extends Repartidor {
     }
 
     @Override
-    public boolean puedeLlevarPedido(double km, boolean esGrande) {
+    public boolean puedeLlevarPedido(double km, boolean esGrande, boolean lluvia) {
         return true;
     }
 }

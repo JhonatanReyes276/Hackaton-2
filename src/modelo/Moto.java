@@ -7,9 +7,16 @@ public class Moto extends Repartidor {
     }
 
     @Override
-    public double calcularCosto(double km) {
-        return 3000+ (km * 1000);
+    public double calcularCosto(double km, boolean lluvia) {
+        double costo = 3000+ (km * 1000);
+        if (lluvia){
+            return costo * 1.20;
+        }
+        return costo;
+
     }
+
+
 
     @Override
     public double calcularTiempo(double km) {
@@ -17,7 +24,7 @@ public class Moto extends Repartidor {
     }
 
     @Override
-    public boolean puedeLlevarPedido(double km, boolean esGrande) {
+    public boolean puedeLlevarPedido(double km, boolean esGrande,  boolean lluvia) {
         return km <= 15.0 && !esGrande;
     }
 }
