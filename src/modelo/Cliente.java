@@ -5,12 +5,14 @@ public class Cliente {
     private String nombre;
     private String direccion;
     private String telefono;
+    private String barrio;
 
     public Cliente(String cedula, String nombre, String direccion, String telefono) {
         setCedula(cedula);
         setNombre(nombre);
         setDireccion(direccion);
         setTelefono(telefono);
+        this.barrio = barrio;
     }
 
     public String getCedula() {
@@ -64,5 +66,16 @@ public class Cliente {
         }
 
         this.telefono = telefono;
+    }
+
+    public String getBarrio() {
+        return barrio;
+    }
+
+    public void setBarrio(String barrio) {
+        if (barrio == null || barrio.isBlank()) {
+            throw new IllegalArgumentException("Hay un error en el barrio");
+        }
+        this.barrio = barrio;
     }
 }
