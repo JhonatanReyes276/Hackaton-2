@@ -27,12 +27,14 @@ public class DomiService {
 
     //Recorre repartidores: si están disponibles y si puede llevarlo
     //Guarda a los que cumplan y los guarda en una cotización
-    public ArrayList<Cotizacion> cotizar(double km, boolean esGrande) {
+    public ArrayList<Cotizacion> cotizar(double km, boolean esGrande, boolean lluvia) {
         ArrayList<Cotizacion> cotizaciones = new ArrayList<>();
-
+        if (km <= 0 || !Double.isFinite(km)) {
+            throw new IllegalArgumentException("La distancia debe ser mayor que cero");
+        }
         for (Repartidor repartidor : repartidores) {
-            if (repartidor.isDisponible() && repartidor.puedeLlevarPedido(km, esGrande)) {
-                double costo = repartidor.calcularCosto(km);
+            if (repartidor.isDisponible() && repartidor.puedeLlevarPedido(km, esGrande, lluvia)) {
+                double costo = repartidor.calcularCosto(km, lluvia);
                 double tiempo = repartidor.calcularTiempo(km);
                 cotizaciones.add(new Cotizacion(repartidor, costo, tiempo));
             }
@@ -45,16 +47,23 @@ public class DomiService {
         if (cotizaciones == null || cotizaciones.isEmpty()) {
             return null;
         }
+        Cotizacion mejor = null;
+        for (Cotizacion actual : cotizaciones) {
+            // Evita asignar un repartidor que ya no esté disponible.
+            if (!actual.getRepartidor().isDisponible()) {
+                continue;
+            }
 
-        Cotizacion mejor = cotizaciones.get(0);
-        for (int i = 1; i < cotizaciones.size(); i++) {
-            Cotizacion actual = cotizaciones.get(i);
-            if (actual.getCosto() < mejor.getCosto()|| (actual.getCosto() == mejor.getCosto()&& actual.getTiempo() < mejor.getTiempo())) {
+            if (mejor == null|| actual.getCosto() < mejor.getCosto() || (Double.compare(actual.getCosto(), mejor.getCosto()) == 0 && actual.getTiempo() < mejor.getTiempo())) {
                 mejor = actual;
             }
         }
+        if (mejor == null) {
+            return null;
+        }
         mejor.getRepartidor().setDisponible(false);
         return mejor;
+
     }
 }
 
