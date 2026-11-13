@@ -1,4 +1,48 @@
 package modelo;
 
-public class Repartidor {
+public abstract class Repartidor {
+
+    private String nombre ;
+    private String codigo;
+    private boolean disponible ;
+
+
+    public Repartidor(String nombre, String codigo, boolean estado) {
+        this.nombre = nombre;
+        this.codigo = codigo;
+        this.disponible = estado;
+    }
+
+
+    public void setNombre(String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre es obligatorio");
+        }
+        this.nombre = nombre.trim() ;
+    }
+
+    public void setCodigo(String codigo) {
+        if(codigo == null || codigo.trim().isEmpty()){
+            throw new IllegalArgumentException("El codigo no puede estar vacio");
+        }
+        this.codigo = codigo.trim();
+    }
+
+    public void setDisponible(boolean disponible) {
+
+        this.disponible = disponible;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public boolean isDisponible() {
+        return disponible;
+    }
 }
