@@ -1,14 +1,20 @@
 package servicio;
 
+import modelo.Bici;
+import modelo.Carro;
 import modelo.Cliente;
 import modelo.Cotizacion;
+import modelo.Dron;
+import modelo.Moto;
 import modelo.Pedido;
-import java.util.ArrayList;
 import modelo.Repartidor;
+
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 
 public class DomiService {
@@ -43,6 +49,40 @@ public class DomiService {
         distanciasBarrios.put("bosa", 18.0);
     }
 
+    public DomiService() {
+        pedidos = new ArrayList<>();
+        repartidores = new ArrayList<>();
+
+        listaBarriosCobertura();
+        inicializarDistanciasBarrios();
+    }
+
+    // ===================== BARRIOS =====================
+
+    // Devuelve los barrios con cobertura (ordenados) para mostrarlos en el menú
+    public Set<String> getBarriosCobertura() {
+        return new TreeSet<>(barriosCobertura);
+    }
+
+    // Consultar distancia según el barrio
+    public double obtenerDistanciaBarrio(String barrio) {
+        String barrioNormalizado = normalizarBarrio(barrio);
+        Double distancia = distanciasBarrios.get(barrioNormalizado);
+        if (distancia == null) {
+            throw new IllegalArgumentException("No tenemos cobertura en ese barrio");
+        }
+        return distancia;
+    }
+
+    private String normalizarBarrio(String barrio) {
+        if (barrio == null || barrio.isBlank()) {
+            throw new IllegalArgumentException("El barrio es obligatorio");
+        }
+        return java.text.Normalizer.normalize(barrio.trim().toLowerCase(), java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+    }
+
+    // ===================== CLIENTES =====================
+
     // Buscar cliente por cédula
     public Cliente buscarCliente(String cedula) {
         if (cedula == null || cedula.isBlank()) {
@@ -55,6 +95,24 @@ public class DomiService {
     // Listar todos los clientes registrados
     public ArrayList<Cliente> listarClientes() {
         return new ArrayList<>(clientes.values());
+    }
+
+    public void registrarCliente(String cedula, String nombre, String telefono, String barrio, String direccion) {
+        if (cedula == null || cedula.isBlank()) {
+            throw new IllegalArgumentException("La cédula es obligatoria");
+        }
+        cedula = cedula.trim();
+        if (clientes.containsKey(cedula)) {
+            throw new IllegalArgumentException(
+                    "Ya existe un cliente registrado con esa cédula");
+        }
+        String barrioNormalizado = normalizarBarrio(barrio);
+        if (!barriosCobertura.contains(barrioNormalizado)) {
+            throw new IllegalArgumentException(
+                    "No tenemos cobertura en ese barrio");
+        }
+        Cliente nuevoCliente = new Cliente(cedula, nombre, direccion, barrio, telefono);
+        clientes.put(cedula, nuevoCliente);
     }
 
     // Editar los datos de un cliente
@@ -101,56 +159,58 @@ public class DomiService {
         clientes.remove(cliente.getCedula());
     }
 
-    // Consultar distancia según el barrio
-    public double obtenerDistanciaBarrio(String barrio) {
-        String barrioNormalizado = normalizarBarrio(barrio);
-        Double distancia = distanciasBarrios.get(barrioNormalizado);
-        if (distancia == null) {
-            throw new IllegalArgumentException("No tenemos cobertura en ese barrio");
-        }
-        return distancia;
-    }
-
-    private String normalizarBarrio(String barrio) {
-        if (barrio == null || barrio.isBlank()) {
-            throw new IllegalArgumentException("El barrio es obligatorio");
-        }
-        return java.text.Normalizer.normalize(barrio.trim().toLowerCase(), java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
-    }
-
-    public DomiService() {
-        pedidos = new ArrayList<>();
-        repartidores = new ArrayList<>();
-
-        listaBarriosCobertura();
-        inicializarDistanciasBarrios();
-    }
-
-    public void registrarCliente(String cedula, String nombre, String telefono, String barrio, String direccion) {
-        if (cedula == null || cedula.isBlank()) {
-            throw new IllegalArgumentException("La cédula es obligatoria");
-        }
-        cedula = cedula.trim();
-        if (clientes.containsKey(cedula)) {
-            throw new IllegalArgumentException(
-                    "Ya existe un cliente registrado con esa cédula");
-        }
-        String barrioNormalizado = normalizarBarrio(barrio);
-        if (!barriosCobertura.contains(barrioNormalizado)) {
-            throw new IllegalArgumentException(
-                    "No tenemos cobertura en ese barrio");
-        }
-        Cliente nuevoCliente = new Cliente(cedula, nombre, direccion, barrio, telefono);
-        clientes.put(cedula, nuevoCliente);
-    }
-
-    public void agregarPedido(Pedido pedido) {  // Agg un nuevo pedido a la lista de Pedidos.
-        pedidos.add(pedido);
-    }
+    // ===================== REPARTIDORES =====================
 
     public void agregarRepartidor(Repartidor repartidor) {  // Agg un nuevo repartidor a la lista de repartidores.
         repartidores.add(repartidor);
     }
+
+    // Crea el repartidor según el tipo (BICI, MOTO, CARRO, DRON) y lo agrega a la lista
+    public void registrarRepartidor(String tipo, String nombre, String codigo) {
+        if (tipo == null || tipo.isBlank()) {
+            throw new IllegalArgumentException("El tipo de repartidor es obligatorio");
+        }
+        if (codigo != null && buscarRepartidor(codigo) != null) {
+            throw new IllegalArgumentException("Ya existe un repartidor con ese código");
+        }
+
+        Repartidor nuevo;
+        switch (tipo.trim().toUpperCase()) {
+            case "BICI":
+                nuevo = new Bici(nombre, codigo);
+                break;
+            case "MOTO":
+                nuevo = new Moto(nombre, codigo);
+                break;
+            case "CARRO":
+                nuevo = new Carro(nombre, codigo);
+                break;
+            case "DRON":
+                nuevo = new Dron(nombre, codigo);
+                break;
+            default:
+                throw new IllegalArgumentException("Tipo de repartidor inválido");
+        }
+        agregarRepartidor(nuevo);
+    }
+
+    public Repartidor buscarRepartidor(String codigo) {
+        if (codigo == null || codigo.isBlank()) {
+            return null;
+        }
+        for (Repartidor repartidor : repartidores) {
+            if (repartidor.getCodigo().equalsIgnoreCase(codigo.trim())) {
+                return repartidor;
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<Repartidor> listarRepartidores() {
+        return new ArrayList<>(repartidores);
+    }
+
+    // ===================== COTIZAR Y ASIGNAR =====================
 
     //Recorre repartidores: si están disponibles y si puede llevarlo
     //Guarda a los que cumplan y los guarda en una cotización
@@ -195,8 +255,34 @@ public class DomiService {
 
     }
 
-// Buscar Pedido
+    // ===================== PEDIDOS =====================
 
+    public void agregarPedido(Pedido pedido) {  // Agg un nuevo pedido a la lista de Pedidos.
+        pedidos.add(pedido);
+    }
+
+    // Crea el pedido con la cotización ya asignada y lo guarda en la lista.
+    // Si algo falla al crearlo, libera al repartidor que ya había sido asignado.
+    public Pedido crearPedido(Cliente cliente, String descripcion, boolean esGrande, double km, Cotizacion cotizacion) {
+        if (cotizacion == null) {
+            throw new IllegalArgumentException("No hay una cotización asignada");
+        }
+        try {
+            Pedido pedido = new Pedido(cliente, descripcion, esGrande, km,
+                    cotizacion.getRepartidor(), cotizacion.getCosto(), cotizacion.getTiempo());
+            agregarPedido(pedido);
+            return pedido;
+        } catch (RuntimeException e) {
+            cotizacion.getRepartidor().setDisponible(true);
+            throw e;
+        }
+    }
+
+    public ArrayList<Pedido> listarPedidos() {
+        return new ArrayList<>(pedidos);
+    }
+
+    // Buscar Pedido
     public Pedido buscarPedido(int numeroPedido) {
 
         for (Pedido pedido : pedidos) {
@@ -210,14 +296,18 @@ public class DomiService {
         return null;
     }
 
-// Entregar Pedido
-
+    // Entregar Pedido
     public void entregarPedido(int numeroPedido, int estrellas) {
 
         Pedido pedido = buscarPedido(numeroPedido);
 
         if (pedido == null) {
             throw new IllegalArgumentException("Pedido no encontrado");
+        }
+
+        // Se valida antes para no dejar el pedido entregado con una calificación inválida
+        if (estrellas < 1 || estrellas > 5) {
+            throw new IllegalArgumentException("La calificación debe estar entre 1 y 5");
         }
 
         pedido.setEstado("ENTREGADO");
@@ -228,8 +318,7 @@ public class DomiService {
 
     }
 
-// Cancelar Pedido
-
+    // Cancelar Pedido
     public void cancelarPedido(int numeroPedido) {
 
         Pedido pedido = buscarPedido(numeroPedido);
@@ -243,7 +332,7 @@ public class DomiService {
         pedido.getRepartidorAsignado().setDisponible(true);
     }
 
-    // Cierre del Día
+    // ===================== CIERRE DEL DÍA =====================
 
     public void cierreDelDia() {
 
@@ -255,6 +344,7 @@ public class DomiService {
         double ingresosBici = 0;
         double ingresosMoto = 0;
         double ingresosCarro = 0;
+        double ingresosDron = 0;
 
         Repartidor estrella = null;
         double mejorPromedio = 0;
@@ -266,18 +356,16 @@ public class DomiService {
                 entregados++;
                 ingresos += pedido.getCosto();
 
-                if (pedido.getRepartidorAsignado().getClass().getSimpleName().equals("Bici")) {
+                String tipo = pedido.getRepartidorAsignado().getClass().getSimpleName();
 
+                if (tipo.equals("Bici")) {
                     ingresosBici += pedido.getCosto();
-
-                } else if (pedido.getRepartidorAsignado().getClass().getSimpleName().equals("Moto")) {
-
+                } else if (tipo.equals("Moto")) {
                     ingresosMoto += pedido.getCosto();
-
-                } else if (pedido.getRepartidorAsignado().getClass().getSimpleName().equals("Carro")) {
-
+                } else if (tipo.equals("Carro")) {
                     ingresosCarro += pedido.getCosto();
-
+                } else if (tipo.equals("Dron")) {
+                    ingresosDron += pedido.getCosto();
                 }
 
             } else if (pedido.getEstado().equals("CANCELADO")) {
@@ -303,32 +391,19 @@ public class DomiService {
         }
 
         System.out.println("\n===== CIERRE DEL DÍA  =====");
-
         System.out.println("Total pedidos: " + pedidos.size());
-
         System.out.println("Entregados: " + entregados);
-
         System.out.println("Cancelados: " + cancelados);
-
         System.out.println("En camino: " + enCamino);
-
         System.out.println("Ingresos del día: $" + ingresos);
-
         System.out.println("Ingresos Bicis: $" + ingresosBici);
-
         System.out.println("Ingresos Motos: $" + ingresosMoto);
-
         System.out.println("Ingresos Carros: $" + ingresosCarro);
+        System.out.println("Ingresos Drones: $" + ingresosDron);
 
         if (estrella != null) {
-
             System.out.println("\nRepartidor estrella:");
-
-            System.out.println(estrella.getNombre()
-                    + "  Promedio: "
-                    + mejorPromedio
-            );
-
+            System.out.println(estrella.getNombre() + "  Promedio: " + mejorPromedio);
         }
 
     }

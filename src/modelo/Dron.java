@@ -2,8 +2,8 @@ package modelo;
 
 public class Dron extends Repartidor {
 
-    public Dron(String codigo, String nombre) {
-        super(codigo, nombre);
+    public Dron(String nombre, String codigo) {
+        super(nombre, codigo);
     }
 
     @Override
