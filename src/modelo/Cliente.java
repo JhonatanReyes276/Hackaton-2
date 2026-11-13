@@ -51,17 +51,27 @@ public class Cliente {
     public String getTelefono() {
         return telefono;
     }
-
     public void setTelefono(String telefono) {
 
+        if (telefono == null || telefono.isBlank()) {
+            throw new IllegalArgumentException("El teléfono no puede estar vacío");
+        }
+
+        telefono = telefono.trim();
+
         if (telefono.length() < 7 || telefono.length() > 10) {
-            throw new IllegalArgumentException("El teléfono debe tener entre 7 y 10 dígitos");
+            throw new IllegalArgumentException(
+                    "El teléfono debe tener entre 7 y 10 dígitos"
+            );
         }
 
         for (int i = 0; i < telefono.length(); i++) {
             char caracter = telefono.charAt(i);
+
             if (!Character.isDigit(caracter)) {
-                throw new IllegalArgumentException("El teléfono solo debe contener números");
+                throw new IllegalArgumentException(
+                        "El teléfono solo debe contener números"
+                );
             }
         }
 
@@ -76,6 +86,6 @@ public class Cliente {
         if (barrio == null || barrio.isBlank()) {
             throw new IllegalArgumentException("Hay un error en el barrio");
         }
-        this.barrio = barrio;
+        this.barrio = barrio.trim();
     }
 }
