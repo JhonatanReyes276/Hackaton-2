@@ -10,7 +10,7 @@ public abstract class Repartidor implements Calificable{
     private int cantidadCalificacion= 0;
 
 
-    public Repartidor(String codigo, String nombre) {
+    public Repartidor(String nombre, String codigo) {
 
         setCodigo(codigo);
         setNombre(nombre);
