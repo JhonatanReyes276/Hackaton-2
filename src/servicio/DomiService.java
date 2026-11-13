@@ -1,20 +1,60 @@
 package servicio;
 
+import modelo.Cliente;
 import modelo.Cotizacion;
 import modelo.Pedido;
 import java.util.ArrayList;
 import modelo.Repartidor;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class DomiService {
 
     private ArrayList<Pedido> pedidos;           // En esta lista es donde se almacenarán todos los pedidos.
     private ArrayList<Repartidor> repartidores;  // En esta lista es donde se almacenarán todos los repartidores.
+    private final Map<String, Cliente> clientes = new HashMap<>();
+    private final Set<String> barriosCobertura = new HashSet<>();
+    private final Map<String, Double> distanciasBarrios = new HashMap<>();
 
+    private void listaBarriosCobertura() {
+        barriosCobertura.add("Chapinero");
+        barriosCobertura.add("Teusaquillo");
+        barriosCobertura.add("La Candelaria");
+        barriosCobertura.add("Usaquén");
+        barriosCobertura.add("Cedritos");
+        barriosCobertura.add("Fontibón");
+        barriosCobertura.add("Suba");
+        barriosCobertura.add("Kennedy");
+        barriosCobertura.add("Bosa");
+    }
+
+    private void inicializarDistanciasBarrios() {
+        distanciasBarrios.put("Chapinero", 1.5);
+        distanciasBarrios.put("Teusaquillo", 3.0);
+        distanciasBarrios.put("La Candelaria", 4.5);
+        distanciasBarrios.put("Usaquén", 6.0);
+        distanciasBarrios.put("Cedritos", 8.0);
+        distanciasBarrios.put("Fontibón", 11.0);
+        distanciasBarrios.put("Suba", 12.0);
+        distanciasBarrios.put("Kennedy", 14.0);
+        distanciasBarrios.put("Bosa", 18.0);
+    }
 
     public DomiService() {                      // Este es el Constructor
         pedidos = new ArrayList<>();
         repartidores = new ArrayList<>();
+    }
+
+    public void registrarCliente(String cedula, String nombre, String telefono, String barrio, String direccion) {
+        if (clientes.containsKey(cedula)) {
+            throw new IllegalArgumentException("Ya existe un cliente registrado con esa cédula");
+        }
+
+        Cliente nuevoCliente = new Cliente(cedula, nombre, telefono, barrio, direccion);
+        clientes.put(cedula, nuevoCliente);
     }
 
     public void agregarPedido(Pedido pedido) {  // Agg un nuevo pedido a la lista de Pedidos.
