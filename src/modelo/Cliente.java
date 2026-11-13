@@ -7,12 +7,12 @@ public class Cliente {
     private String telefono;
     private String barrio;
 
-    public Cliente(String cedula, String nombre, String direccion, String telefono) {
+    public Cliente(String cedula, String nombre, String direccion, String barrio, String telefono) {
         setCedula(cedula);
         setNombre(nombre);
         setDireccion(direccion);
         setTelefono(telefono);
-        this.barrio = barrio;
+        setBarrio(barrio);
     }
 
     public String getCedula() {
