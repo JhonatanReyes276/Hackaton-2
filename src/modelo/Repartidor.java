@@ -1,16 +1,20 @@
 package modelo;
 
-public abstract class Repartidor {
+public abstract class Repartidor implements Calificable{
 
     private String nombre ;
     private String codigo;
     private boolean disponible ;
 
+    private int sumarCalificacion= 0;
+    private int cantidadCalificacion= 0;
 
-    public Repartidor(String nombre, String codigo, boolean estado) {
-        this.nombre = nombre;
-        this.codigo = codigo;
-        this.disponible = estado;
+
+    public Repartidor(String codigo, String nombre) {
+
+        setCodigo(codigo);
+        setNombre(nombre);
+        this.disponible = true;
     }
 
 
@@ -46,9 +50,26 @@ public abstract class Repartidor {
         return disponible;
     }
 
-    public abstract double calcularCosto(double km);
+    public abstract double calcularCosto(double km , boolean lluvia);
 
     public abstract double calcularTiempo(double km);
 
-    public abstract boolean puedeLlevarPedido(double km, boolean esGrande);
+    public abstract boolean puedeLlevarPedido(double km, boolean esGrande, boolean lluvia);
+
+    @Override
+    public void recibirCalificacion( int estrellas) {
+        if (estrellas < 1 || estrellas > 5) {
+            throw new IllegalArgumentException("La calificacion debe estar sobre 1 y no pasar de  5");
+        }
+        sumarCalificacion = sumarCalificacion + estrellas;
+        cantidadCalificacion = cantidadCalificacion +1;
+    }
+
+    @Override
+    public double obtenerPromedio (){
+        if (cantidadCalificacion == 0){
+            return 0.0;
+        }
+        return (double) sumarCalificacion / cantidadCalificacion;
+    }
 }

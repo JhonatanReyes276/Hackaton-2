@@ -4,22 +4,26 @@ public class Carro extends Repartidor {
 
         public Carro( String nombre, String codigo) {
 
-            super(nombre,codigo,true);
+            super(nombre,codigo);
         }
 
 
     @Override
-    public double calcularCosto(double km) {
-        return 0;
+    public double calcularCosto(double km, boolean lluvia) {
+        double costo= 5000 + (km * 1200);
+        if(lluvia){
+            return costo *1.20;
+        }
+        return costo;
     }
 
     @Override
     public double calcularTiempo(double km) {
-        return 0;
+        return(km/25.0) * 60;
     }
 
     @Override
-    public boolean puedeLlevarPedido(double km, boolean esGrande) {
-        return false;
+    public boolean puedeLlevarPedido(double km, boolean esGrande, boolean lluvia) {
+        return true;
     }
 }
