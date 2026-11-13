@@ -7,10 +7,11 @@ public abstract class Repartidor {
     private boolean disponible ;
 
 
-    public Repartidor(String nombre, String codigo, boolean estado) {
-        this.nombre = nombre;
-        this.codigo = codigo;
-        this.disponible = estado;
+    public Repartidor(String codigo, String nombre) {
+
+        setCodigo(codigo);
+        setNombre(nombre);
+        this.disponible = true;
     }
 
 
