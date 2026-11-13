@@ -1,4 +1,9 @@
 package modelo;
 
-public class Carro {
+public class Carro extends Repartidor {
+
+        public Carro( String codigo, String nombre) {
+            super(codigo,nombre);
+        }
+
 }
