@@ -294,7 +294,7 @@ public class DomiService {
         for (Repartidor repartidor : repartidores) {
             double promedio = repartidor.obtenerPromedio();
 
-            if (promedio > mejorPromedio) {
+            if (promedio > 0 && promedio > mejorPromedio) {
 
                 mejorPromedio = promedio;
                 estrella = repartidor;
