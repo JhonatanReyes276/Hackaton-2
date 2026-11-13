@@ -20,6 +20,7 @@ public class DomiService {
     public void agregarPedido(Pedido pedido) {  // Agg un nuevo pedido a la lista de Pedidos.
         pedidos.add(pedido);
     }
+
     public void agregarRepartidor(Repartidor repartidor) {  // Agg un nuevo repartidor a la lista de repartidores.
         repartidores.add(repartidor);
     }
@@ -40,6 +41,7 @@ public class DomiService {
         }
         return cotizaciones;
     }
+
     //Toma las cotizaciones y elige el de menor costo, también si empatan compara tiempos
     //Se marca al repartidor como no disponible devuevle la mejor cotización
     public Cotizacion asignar(ArrayList<Cotizacion> cotizaciones) {
@@ -53,7 +55,7 @@ public class DomiService {
                 continue;
             }
 
-            if (mejor == null|| actual.getCosto() < mejor.getCosto() || (Double.compare(actual.getCosto(), mejor.getCosto()) == 0 && actual.getTiempo() < mejor.getTiempo())) {
+            if (mejor == null || actual.getCosto() < mejor.getCosto() || (Double.compare(actual.getCosto(), mejor.getCosto()) == 0 && actual.getTiempo() < mejor.getTiempo())) {
                 mejor = actual;
             }
         }
@@ -64,10 +66,93 @@ public class DomiService {
         return mejor;
 
     }
+
+// Buscar Pedido
+
+    public Pedido buscarPedido(int numeroPedido) {
+
+        for (Pedido pedido : pedidos) {
+
+            if (pedido.getNumero() == numeroPedido) {
+                return pedido;
+            }
+
+        }
+
+        return null;
+    }
+
+// Entregar Pedido
+
+    public void entregarPedido(int numeroPedido) {
+
+        Pedido pedido = buscarPedido(numeroPedido);
+
+        if (pedido == null) {
+            throw new IllegalArgumentException("Pedido no encontrado");
+        }
+
+        pedido.setEstado("ENTREGADO");
+
+        pedido.getRepartidorAsignado().setDisponible(true);
+    }
+
+// Cancelar Pedido
+
+    public void cancelarPedido(int numeroPedido) {
+
+        Pedido pedido = buscarPedido(numeroPedido);
+
+        if (pedido == null) {
+            throw new IllegalArgumentException("Pedido no encontrado");
+        }
+
+        pedido.setEstado("CANCELADO");
+
+        pedido.getRepartidorAsignado().setDisponible(true);
+    }
+
+    // Cierre del Día
+
+    public void cierreDelDia() {
+
+        int entregados = 0;
+        int cancelados = 0;
+        int enCamino = 0;
+
+        double ingresos = 0;
+
+        for (Pedido pedido : pedidos) {
+
+            if (pedido.getEstado().equals("ENTREGADO")) {
+
+                entregados++;
+                ingresos += pedido.getCosto();
+
+            } else if (pedido.getEstado().equals("CANCELADO")) {
+
+                cancelados++;
+
+            } else if (pedido.getEstado().equals("EN_CAMINO")) {
+
+                enCamino++;
+
+            }
+        }
+
+        System.out.println("\n===== CIERRE DEL DÍA  =====");
+
+        System.out.println("Total pedidos: " + pedidos.size());
+
+        System.out.println("Entregados: " + entregados);
+
+        System.out.println("Cancelados: " + cancelados);
+
+        System.out.println("En camino: " + enCamino);
+
+        System.out.println("Ingresos del día: $" + ingresos);
+    }
+
 }
-
-
-
-
 
 
