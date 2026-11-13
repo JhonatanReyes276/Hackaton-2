@@ -1,4 +1,5 @@
 package servicio;
+
 import modelo.Cotizacion;
 import modelo.Pedido;
 import java.util.ArrayList;
@@ -7,21 +8,19 @@ import modelo.Repartidor;
 
 public class DomiService {
 
-    private ArrayList<Pedido> pedidos;
-    private ArrayList<Repartidor> repartidores;
+    private ArrayList<Pedido> pedidos;           // En esta lista es donde se almacenarán todos los pedidos.
+    private ArrayList<Repartidor> repartidores;  // En esta lista es donde se almacenarán todos los repartidores.
 
 
-    public DomiService() {
+    public DomiService() {                      // Este es el Constructor
         pedidos = new ArrayList<>();
         repartidores = new ArrayList<>();
     }
 
-    // Pendiente Estructura de Pedido para realizar el metodo de buscarPedido
-    // Pendiente por realizar K.V: Cambios de estado y cierre del dia
-    public void agregarPedido(Pedido pedido) {
+    public void agregarPedido(Pedido pedido) {  // Agg un nuevo pedido a la lista de Pedidos.
         pedidos.add(pedido);
     }
-    public void agregarRepartidor(Repartidor repartidor) {
+    public void agregarRepartidor(Repartidor repartidor) {  // Agg un nuevo repartidor a la lista de repartidores.
         repartidores.add(repartidor);
     }
 
