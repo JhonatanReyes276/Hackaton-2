@@ -166,6 +166,7 @@ public class DomiService {
                 cotizaciones.add(new Cotizacion(repartidor, costo, tiempo));
             }
         }
+
         return cotizaciones;
     }
 
@@ -211,7 +212,7 @@ public class DomiService {
 
 // Entregar Pedido
 
-    public void entregarPedido(int numeroPedido) {
+    public void entregarPedido(int numeroPedido, int estrellas) {
 
         Pedido pedido = buscarPedido(numeroPedido);
 
@@ -222,6 +223,9 @@ public class DomiService {
         pedido.setEstado("ENTREGADO");
 
         pedido.getRepartidorAsignado().setDisponible(true);
+
+        pedido.getRepartidorAsignado().recibirCalificacion(estrellas);
+
     }
 
 // Cancelar Pedido
@@ -248,6 +252,12 @@ public class DomiService {
         int enCamino = 0;
 
         double ingresos = 0;
+        double ingresosBici = 0;
+        double ingresosMoto = 0;
+        double ingresosCarro = 0;
+
+        Repartidor estrella = null;
+        double mejorPromedio = 0;
 
         for (Pedido pedido : pedidos) {
 
@@ -256,6 +266,20 @@ public class DomiService {
                 entregados++;
                 ingresos += pedido.getCosto();
 
+                if (pedido.getRepartidorAsignado().getClass().getSimpleName().equals("Bici")) {
+
+                    ingresosBici += pedido.getCosto();
+
+                } else if (pedido.getRepartidorAsignado().getClass().getSimpleName().equals("Moto")) {
+
+                    ingresosMoto += pedido.getCosto();
+
+                } else if (pedido.getRepartidorAsignado().getClass().getSimpleName().equals("Carro")) {
+
+                    ingresosCarro += pedido.getCosto();
+
+                }
+
             } else if (pedido.getEstado().equals("CANCELADO")) {
 
                 cancelados++;
@@ -263,6 +287,17 @@ public class DomiService {
             } else if (pedido.getEstado().equals("EN_CAMINO")) {
 
                 enCamino++;
+
+            }
+        }
+
+        for (Repartidor repartidor : repartidores) {
+            double promedio = repartidor.obtenerPromedio();
+
+            if (promedio > 0 && promedio > mejorPromedio) {
+
+                mejorPromedio = promedio;
+                estrella = repartidor;
 
             }
         }
@@ -278,8 +313,24 @@ public class DomiService {
         System.out.println("En camino: " + enCamino);
 
         System.out.println("Ingresos del día: $" + ingresos);
+
+        System.out.println("Ingresos Bicis: $" + ingresosBici);
+
+        System.out.println("Ingresos Motos: $" + ingresosMoto);
+
+        System.out.println("Ingresos Carros: $" + ingresosCarro);
+
+        if (estrella != null) {
+
+            System.out.println("\nRepartidor estrella:");
+
+            System.out.println(estrella.getNombre()
+                    + "  Promedio: "
+                    + mejorPromedio
+            );
+
+        }
+
     }
 
 }
-
-
