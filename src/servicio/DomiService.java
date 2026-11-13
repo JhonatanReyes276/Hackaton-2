@@ -1,20 +1,147 @@
 package servicio;
 
+import modelo.Cliente;
 import modelo.Cotizacion;
 import modelo.Pedido;
 import java.util.ArrayList;
 import modelo.Repartidor;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class DomiService {
 
     private ArrayList<Pedido> pedidos;           // En esta lista es donde se almacenarán todos los pedidos.
     private ArrayList<Repartidor> repartidores;  // En esta lista es donde se almacenarán todos los repartidores.
+    private final Map<String, Cliente> clientes = new HashMap<>();
+    private final Set<String> barriosCobertura = new HashSet<>();
+    private final Map<String, Double> distanciasBarrios = new HashMap<>();
 
+    private void listaBarriosCobertura() {
+        barriosCobertura.add("chapinero");
+        barriosCobertura.add("teusaquillo");
+        barriosCobertura.add("la candelaria");
+        barriosCobertura.add("usaquen");
+        barriosCobertura.add("cedritos");
+        barriosCobertura.add("fontibon");
+        barriosCobertura.add("suba");
+        barriosCobertura.add("kennedy");
+        barriosCobertura.add("bosa");
+    }
 
-    public DomiService() {                      // Este es el Constructor
+    private void inicializarDistanciasBarrios() {
+        distanciasBarrios.put("chapinero", 1.5);
+        distanciasBarrios.put("teusaquillo", 3.0);
+        distanciasBarrios.put("la candelaria", 4.5);
+        distanciasBarrios.put("usaquen", 6.0);
+        distanciasBarrios.put("cedritos", 8.0);
+        distanciasBarrios.put("fontibon", 11.0);
+        distanciasBarrios.put("suba", 12.0);
+        distanciasBarrios.put("kennedy", 14.0);
+        distanciasBarrios.put("bosa", 18.0);
+    }
+
+    // Buscar cliente por cédula
+    public Cliente buscarCliente(String cedula) {
+        if (cedula == null || cedula.isBlank()) {
+            throw new IllegalArgumentException("La cédula es obligatoria");
+        }
+
+        return clientes.get(cedula.trim());
+    }
+
+    // Listar todos los clientes registrados
+    public ArrayList<Cliente> listarClientes() {
+        return new ArrayList<>(clientes.values());
+    }
+
+    // Editar los datos de un cliente
+    public void editarCliente(String cedula, String nuevaDireccion, String nuevoBarrio, String nuevoTelefono) {
+        Cliente cliente = buscarCliente(cedula);
+        if (cliente == null) {
+            throw new IllegalArgumentException("Cliente no encontrado");
+        }
+
+        String barrioNormalizado = normalizarBarrio(nuevoBarrio);
+        if (!barriosCobertura.contains(barrioNormalizado)) {
+            throw new IllegalArgumentException("No tenemos cobertura en ese barrio");
+        }
+
+        //cliente temporal para validar los datos
+        Cliente clienteTemporal = new Cliente(
+                cliente.getCedula(),
+                cliente.getNombre(),
+                nuevaDireccion,
+                nuevoBarrio,
+                nuevoTelefono
+        );
+
+        // Si todos los datos son válidos, actualizamos el original
+        cliente.setDireccion(clienteTemporal.getDireccion());
+        cliente.setBarrio(clienteTemporal.getBarrio());
+        cliente.setTelefono(clienteTemporal.getTelefono());
+    }
+
+    // Eliminar un cliente
+    public void eliminarCliente(String cedula) {
+        Cliente cliente = buscarCliente(cedula);
+        if (cliente == null) {
+            throw new IllegalArgumentException("Cliente no encontrado");
+        }
+
+        // No se puede eliminar si tiene pedidos en camino
+        for (Pedido pedido : pedidos) {
+            if (pedido.getCliente().getCedula().equals(cliente.getCedula()) && pedido.getEstado().equals("EN_CAMINO")) {
+                throw new IllegalArgumentException("No se puede eliminar el cliente porque tiene pedidos en camino");
+            }
+        }
+
+        clientes.remove(cliente.getCedula());
+    }
+
+    // Consultar distancia según el barrio
+    public double obtenerDistanciaBarrio(String barrio) {
+        String barrioNormalizado = normalizarBarrio(barrio);
+        Double distancia = distanciasBarrios.get(barrioNormalizado);
+        if (distancia == null) {
+            throw new IllegalArgumentException("No tenemos cobertura en ese barrio");
+        }
+        return distancia;
+    }
+
+    private String normalizarBarrio(String barrio) {
+        if (barrio == null || barrio.isBlank()) {
+            throw new IllegalArgumentException("El barrio es obligatorio");
+        }
+        return java.text.Normalizer.normalize(barrio.trim().toLowerCase(), java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+    }
+
+    public DomiService() {
         pedidos = new ArrayList<>();
         repartidores = new ArrayList<>();
+
+        listaBarriosCobertura();
+        inicializarDistanciasBarrios();
+    }
+
+    public void registrarCliente(String cedula, String nombre, String telefono, String barrio, String direccion) {
+        if (cedula == null || cedula.isBlank()) {
+            throw new IllegalArgumentException("La cédula es obligatoria");
+        }
+        cedula = cedula.trim();
+        if (clientes.containsKey(cedula)) {
+            throw new IllegalArgumentException(
+                    "Ya existe un cliente registrado con esa cédula");
+        }
+        String barrioNormalizado = normalizarBarrio(barrio);
+        if (!barriosCobertura.contains(barrioNormalizado)) {
+            throw new IllegalArgumentException(
+                    "No tenemos cobertura en ese barrio");
+        }
+        Cliente nuevoCliente = new Cliente(cedula, nombre, direccion, barrio, telefono);
+        clientes.put(cedula, nuevoCliente);
     }
 
     public void agregarPedido(Pedido pedido) {  // Agg un nuevo pedido a la lista de Pedidos.
